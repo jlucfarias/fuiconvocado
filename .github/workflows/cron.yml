@@ -1,0 +1,24 @@
+name: Cron Workflow
+
+on:
+  schedule:
+    - cron: "49 15 * * 1-5"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.8'
+
+    - name: Install dependencies
+      uses: py-actions/py-dependency-install@v4
+
+    - name: Run scrapper
+      run: scrapy crawl trt21
