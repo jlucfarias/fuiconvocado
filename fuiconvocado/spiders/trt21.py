@@ -27,7 +27,7 @@ class Trt21Spider(scrapy.Spider):
       if datetime.strptime(date, "%d/%m/%Y").date() != today:
         continue
 
-      act_headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'}
+      act_headers = {'User-Agent': response.request.headers['User-Agent']}
       act_response = requests.get(f"https://www.trt21.jus.br{link}", headers=act_headers)
       act_soup = BeautifulSoup(act_response.text, 'html.parser')
       act_main = act_soup.find('article')
