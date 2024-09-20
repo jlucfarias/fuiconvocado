@@ -10,7 +10,9 @@ class Trt21Spider(scrapy.Spider):
 
   def parse(self, response):
     if response.status != 200:
-      return None
+      yield {
+        'success': False
+      }
 
     soup = BeautifulSoup(response.text, 'html.parser')
     main = soup.find('div', class_='view-ano-mes')
@@ -37,4 +39,10 @@ class Trt21Spider(scrapy.Spider):
       if nomination is None:
         continue
 
-    pass
+      yield {
+        'success': True
+      }
+
+    yield {
+      'success': False
+    }

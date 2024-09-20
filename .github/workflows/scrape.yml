@@ -22,4 +22,6 @@ jobs:
       uses: py-actions/py-dependency-install@v4
 
     - name: Run scrapper
-      run: scrapy crawl trt21
+      run: scrapy crawl trt21 -o result.json && cat result.json | jq 'if .[0].success then 0 else 1 end' | { read shouldExecute; gh variable set EXECUTE_WORKFLOW --body "$shouldExecute"; }
+      env:
+        GH_TOKEN: ${{ secrets.FULL_PAT }}
