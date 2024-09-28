@@ -9,13 +9,28 @@ class Trt21Spider(scrapy.Spider):
   start_urls = ["https://www.trt21.jus.br/legislacao/expedientes?field_expediente_tipo_value=ATO&pesquisa_textual=&ano=2024&mes=all&page=0"]
 
   def parse(self, response):
+    print(response.request.headers)
+
     if response.status != 200:
-      yield {
-        'success': False
+      print("Status: {}", response.status)
+      print("User agent: {}", response.request.headers['User-Agent'])
+
+      return {
+        'success': False,
+        'reason': 'Status incorrect'
       }
 
     soup = BeautifulSoup(response.text, 'html.parser')
     main = soup.find('div', class_='view-ano-mes')
+
+    if main is None:
+      print('Main is None')
+
+      return {
+        'success': False,
+        'reason': 'Main is None'
+      }
+
     table = main.find('table')
     body = table.find('tbody')
     acts = body.findAll('tr')
@@ -39,10 +54,13 @@ class Trt21Spider(scrapy.Spider):
       if nomination is None:
         continue
 
-      yield {
+      return {
         'success': True
       }
 
-    yield {
-      'success': False
+    print('No nomination')
+
+    return {
+      'success': False,
+      'reason': 'No nomination'
     }
