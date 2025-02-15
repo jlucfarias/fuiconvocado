@@ -6,7 +6,8 @@ import scrapy
 class Trt21Spider(scrapy.Spider):
   name = "trt21"
   allowed_domains = ["www.trt21.jus.br"]
-  start_urls = ["https://www.trt21.jus.br/legislacao/expedientes?field_expediente_tipo_value=ATO&pesquisa_textual=&ano=2024&mes=all&page=0"]
+  year = datetime.today().year
+  start_urls = [f"https://www.trt21.jus.br/legislacao/expedientes?field_expediente_tipo_value=ATO&pesquisa_textual=&ano={year}&mes=all&page=0"]
 
   def parse(self, response):
     print(response.request.headers)
@@ -34,18 +35,16 @@ class Trt21Spider(scrapy.Spider):
     table = main.find('table')
     body = table.find('tbody')
     acts = body.findAll('tr')
-    now = datetime.now()
-    today = now.date()
+    today = datetime.today().date()
 
     for act in acts:
-      date = act.find('td', headers="view-field-expediente-data-table-column").text.strip()
-      link = act.find('td', headers="view-title-table-column").find('a')['href']
+      act_date = act.find('td', headers="view-field-expediente-data-table-column").text.strip()
 
-      if datetime.strptime(date, "%d/%m/%Y").date() != today:
+      if datetime.strptime(act_date, "%d/%m/%Y").date() != today:
         continue
 
-      act_headers = {'User-Agent': response.request.headers['User-Agent']}
-      act_response = requests.get(f"https://www.trt21.jus.br{link}", headers=act_headers)
+      link = act.find('td', headers="view-title-table-column").find('a')['href']
+      act_response = requests.get(f"https://www.trt21.jus.br{link}", headers=response.request.headers)
       act_soup = BeautifulSoup(act_response.text, 'html.parser')
       act_main = act_soup.find('article')
       act_text = act_main.find('div', class_="field--text-with-summary")
